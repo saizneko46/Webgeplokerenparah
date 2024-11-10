@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-md glass-morphism p-8 shadow-2xl">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fab fa-whatsapp mr-2"></i>WhatsApp Pairing
+            </h1>
+            <p class="text-gray-200">Secure Connection Tool</p>
+        </div>
+
+        <form id="pairingForm" class="space-y-4">
+            <div>
+                <label class="block text-white mb-2">Target WhatsApp Number</label>
+                <div class="flex">
+                    <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 rounded-l-md border border-r-0 border-gray-300">
+                        +62
+                    </span>
+                    <input 
+                        type="text" 
+                        id="targetNumber" 
+                        placeholder="Enter Phone Number" 
+                        required
+                        class="rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    >
+                </div>
+                <small class="text-gray-300">Example: 8123456789</small>
+            </div>
+
+            <div class="flex space-x-4">
+                <button 
+                    type="submit" 
+                    class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition duration-300 flex items-center justify-center"
+                >
+                    <i class="fas fa-link mr-2"></i>Start attack
+                </button>
+                <button 
+                    type="button" 
+                    id="stopButton"
+                    class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition duration-300 flex items-center justify-center"
+                >
+                    <i class="fas fa-stop-circle mr-2"></i>Stop attack
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6 text-center">
+            <div id="pairingStatus" class="hidden">
+                <h3 class="text-xl font-semibold text-white mb-2">Pairing Status</h3>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <p class="text-green-400 pulse-animation" id="pairingCode">
+                        <i class="fas fa-key mr-2"></i>Waiting for Pairing Code
+                    </p>
+                    <p class="text-gray-300 mt-2" id="targetNumberDisplay"></p>
+                </div>
+            </div>
+            <div id="errorMessage" class="text-red-400 mt-4"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('pairingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const targetNumber = document.getElementById('targetNumber').value;
+            const pairingStatusEl = document.getElementById('pairingStatus');
+            const pairingCodeEl = document.getElementById('pairingCode');
+            const targetNumberDisplayEl = document.getElementById('targetNumberDisplay');
+            const errorEl = document.getElementById('errorMessage');
+
+            // Reset pesan
+            pairingStatusEl.classList.remove('hidden');
+            pairingCodeEl.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating Pairing Code...';
+            targetNumberDisplayEl.textContent = `Target: +62${targetNumber}`;
+            errorEl.textContent = '';
+
+            fetch('/start-pairing', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ targetNumber: `62${targetNumber}` })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    pairingCodeEl.innerHTML = `<i class="fas fa-key mr-2"></i>${data.pairingCode}`;
+                    targetNumberDisplayEl.textContent = `Target: ${data.targetNumber}`;
+                } else {
+                    errorEl.textContent = data.message;
+                    pairingStatusEl.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorEl.textContent = 'Pairing failed. Please try again.';
+                pairingStatusEl.classList.add('hidden');
+            });
+        });
+
+        document.getElementById('stopButton').addEventListener('click', function() {
+            const pairingStatusEl = document.getElementById('pairingStatus');
+            const pairingCodeEl = document.getElementById('pairingCode');
+            const targetNumberDisplayEl = document.getElementById('targetNumberDisplay');
+            const errorEl = document.getElementById('errorMessage');
+
+            // Reset pesan
+            pairingCodeEl.innerHTML = '<i class="fas fa-stop-circle mr-2"></i>Stopping Pairing...';
+            errorEl.textContent = '';
+
+            fetch('/stop-pairing', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    pairingStatusEl.classList.add('hidden');
+                    errorEl.textContent = 'Pairing process stopped successfully.';
+                } else {
+                    errorEl.textContent = data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorEl.textContent = 'Failed to stop pairing process.';
+            });
+        });
+    </script>
+</body>
+</html>

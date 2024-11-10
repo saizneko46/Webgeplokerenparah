@@ -1,0 +1,32 @@
+{
+  "name": "PAEDULZ",
+  "version": "1.0.0",
+  "description": "PAEDULZ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "PAEDULZ",
+  "license": "MIT",
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "^6.7.5",
+    "awesome-phonenumber": "^2.64.0",
+    "axios": "^1.6.8",
+    "chalk": "^4.1.2",
+    "child_process": "^1.0.2",
+    "crypto": "^1.0.1",
+    "express": "^4.21.1",
+    "figlet": "^1.5.0",
+    "fs": "0.0.1-security",
+    "human-readable": "^0.2.1",
+    "jimp": "^0.16.1",
+    "lodash": "^4.17.21",
+    "moment-timezone": "^0.5.34",
+    "node-telegram-bot-api": "^0.66.0",
+    "open": "^8.4.2",
+    "pino": "^7.0.5",
+    "util": "^0.12.4",
+    "yargs": "^17.7.2"
+  }
+}
